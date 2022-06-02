@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User{
+  email         String @unique
+  username      String
+  hashtag_num   String
+  id            String @unique([username, hashtag_num])
+  password      String
+  status        Status
+  bio           String?
+  description   String?
+  profile_img   String?
+  phone_num     Int?
+  friends       User[]
+  conversations Conversation[]
+  blocked       User[]
+}
+
+model Conversation{
+  id            String @id @default(cuid())
+  participants  User[]
+  msgs          Message[]
+}
+
+model Message{
+  id            String @id @default(cuid())
+  body          String
+  time_stamp    DateTime @default(now())
+  user          User @relation(fields: [userId], references: [id])
+  userId        String
+  img           String?
+}
+
+model Invitation{
+  id            String @id @default(cuid())
+  from          User
+  to            User
+}
+
+enum Status{
+ONLINE
+IDLE
+DO_NOT_DISTURB
+INVISIBLE
+OFFLINE
+}
